@@ -10,7 +10,8 @@ app_ui <- function(request) {
     golem_add_external_resources(),
     # Your application UI logic
     fluidPage(
-      h1("trees")
+      h1("trees"),
+      mod_edmonton_ui("edmonton_1"),
     )
   )
 }

@@ -1,13 +1,23 @@
 Package: trees
 Title: Trees
 Version: 0.0.0.9000
-Authors@R: person('Olivier', 'Haley', email = 'ohaley@ualberta.ca', role = c('cre', 'aut'))
+Authors@R: 
+    person("Olivier", "Haley", , "ohaley@ualberta.ca", role = c("cre", "aut"))
 Description: A golem shiny app focused on mapping.
 License: MIT + file LICENSE
 Imports: 
     config (>= 0.3.2),
+    dplyr,
     golem (>= 0.4.1),
+    leaflet,
+    lubridate,
+    magrittr,
     shiny (>= 1.8.1)
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.3.1
+Suggests: 
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
+Depends: 
+    R (>= 2.10)
