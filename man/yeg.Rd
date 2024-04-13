@@ -3,7 +3,7 @@
 \docType{data}
 \name{yeg}
 \alias{yeg}
-\title{dataset::yeg}
+\title{yeg tree data}
 \format{
 data frame
 }

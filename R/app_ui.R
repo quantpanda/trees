@@ -5,12 +5,16 @@
 #' @import shiny
 #' @noRd
 app_ui <- function(request) {
+  #theme
+
   tagList(
+
     # Leave this function for adding external resources
     golem_add_external_resources(),
     # Your application UI logic
     fluidPage(
-      h1("trees"),
+      theme = shinythemes::shinytheme("darkly"),
+      h1("City of Edmonton Interactive Map"),
       mod_edmonton_ui("edmonton_1"),
     )
   )

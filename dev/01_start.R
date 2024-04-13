@@ -10,6 +10,12 @@
 ########################################
 #### CURRENT FILE: ON START SCRIPT #####
 ########################################
+##Load Packages
+library(golem)
+library(usethis)
+library(devtools)
+library(shiny)
+library(tidyverse)
 
 ## Fill the DESCRIPTION ----
 ## Add meta data about your application

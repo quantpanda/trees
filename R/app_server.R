@@ -10,4 +10,4 @@ app_server <- function(input, output, session) {
   r$yeg_neighbourhoods <- trees::yeg_neighbourhoods
   mod_edmonton_server("edmonton_1", r = r)
   # Your application server logic
-}
+  }

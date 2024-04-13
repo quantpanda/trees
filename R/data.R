@@ -1,4 +1,4 @@
-#' dataset::yeg
+#' yeg tree data
 #' @description Edmonton tree data.
 #' @format data frame
 #' @returns `tibble`
@@ -16,3 +16,12 @@
 #'
 #' @source <https://data.edmonton.ca/Geospatial-Boundaries/Neighbourhoods-and-Wards/gihh-utrc/about_data>
 "yeg_neighbourhoods"
+
+
+#' Edmonton Population data
+#' A dataset with Edmonton population data.
+#' @format data frame
+#' @returns `tibble`
+#' @source <https://data.edmonton.ca/Census/2016-Census-Population-by-Household-Income-Neighbo/jkjx-2hix/data_preview>
+"populations"
+
