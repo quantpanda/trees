@@ -13,7 +13,6 @@ mod_edmonton_ui <- function(id){
     shiny::tabPanel("Edmonton",
                     "This is the Edmonton module"
     )
-
   )
   leaflet::leafletOutput(ns("map"), width = "100%", height = 800)
 }

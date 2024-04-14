@@ -13,42 +13,38 @@ knitr::opts_chunk$set(
 )
 ```
 
-# trees
+***(FIN-488) Fintech 3 Final Project. A class aimed to develop applicable problem-solving skills by creating production-grade web apps.***
+
+Author: Olivier Haley, University of Alberta
+
+# Alternative Real Estate Analytics (AREA)
+
+### Package name: (trees)
 
 <!-- badges: start -->
+
 <!-- badges: end -->
 
-The goal of trees is to ...
+Trees is an *golem* shiny application with the goal of providing alternative real estate analysis tools for the Edmonton area.
+
+-   What is the impact of urban parks and trees on real estate prices?
+
+-   What is the recipe for an desirable neighborhood?
 
 ## Installation
 
 You can install the development version of trees like so:
 
 ``` r
-# FILL THIS IN! HOW CAN PEOPLE INSTALL YOUR DEV PACKAGE?
+# install.packages("devtools")
+devtools::install_github("tigerwoodsjr/trees")
 ```
 
-## Example
+## Running the app
 
-This is a basic example which shows you how to solve a common problem:
-
-```{r example}
+```         
 library(trees)
-## basic example code
+trees::run_app()
 ```
 
-What is special about using `README.Rmd` instead of just `README.md`? You can include R chunks like so:
-
-```{r cars}
-summary(cars)
-```
-
-You'll still need to render `README.Rmd` regularly, to keep `README.md` up-to-date. `devtools::build_readme()` is handy for this.
-
-You can also embed plots, for example:
-
-```{r pressure, echo = FALSE}
-plot(pressure)
-```
-
-In that case, don't forget to commit and push the resulting figure files, so they display on GitHub and CRAN.
+## 
