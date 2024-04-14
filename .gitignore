@@ -4,3 +4,9 @@
 .httr-oauth
 .DS_Store
 .quarto
+# csv
+*.csv
+# html
+*.html
+#cache
+.cache
