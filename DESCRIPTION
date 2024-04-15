@@ -12,9 +12,9 @@ Imports:
     dplyr,
     golem (>= 0.4.1),
     leaflet,
-    leaflet.extras,
     magrittr,
     plotly,
+    RColorBrewer,
     shiny (>= 1.8.1),
     shinythemes,
     tibble

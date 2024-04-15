@@ -24,14 +24,14 @@ population_raw <- httr::GET(api_endpoint_pop) %>% httr::content("text") %>% json
 # ASSESSMENTS
 assessments <- assessments_raw %>%
   dplyr::filter(mill_class_1 == "RESIDENTIAL") %>%
-  transmute(neighbourhood_name = neighbourhood,
+  dplyr::transmute(neighbourhood_name = neighbourhood,
             assessed_value = as.numeric(assessed_value)) %>%
-  group_by(neighbourhood_name) %>%
-  summarise(mean_assessed_value = mean(assessed_value, na.rm = TRUE),
+  dplyr::group_by(neighbourhood_name) %>%
+  dplyr::summarise(mean_assessed_value = mean(assessed_value, na.rm = TRUE),
             median_assessed_value = median(assessed_value, na.rm = TRUE),
             max_assessed_value = max(assessed_value, na.rm = TRUE),
             min_assessed_value = min(assessed_value, na.rm = TRUE),
-            num_properties = n())
+            num_properties = dplyr::n())
 
 
 #TREES
@@ -65,8 +65,8 @@ population <- population_raw %>%
 
 # POPULATION TOTAL
 total_population <- population %>%
-  group_by(neighbourhood_name) %>%
-  summarise(Population = sum(popu, na.rm = TRUE))
+  dplyr::group_by(neighbourhood_name) %>%
+  dplyr::summarise(Population = sum(popu, na.rm = TRUE))
 
 # INCOMES
 income <- incomes_raw %>%
@@ -81,7 +81,7 @@ income <- incomes_raw %>%
   dplyr::mutate(class = gsub("to_less_than_", "to ", class)) %>%
   # replace _ by " "
   dplyr::mutate(class = gsub("_", " ", class)) %>%
-  dplyr::mutate(class_num = case_when(
+  dplyr::mutate(class_num = dplyr::case_when(
     class == "less than 30 000"  ~ 1,
     class == " 30 000 to 60 000"  ~ 2,
     class == " 60 000 to 100 000" ~ 3,
@@ -106,17 +106,8 @@ yeg_neighbourhoods <- yeg_neighbourhoods_raw %>%
   dplyr::mutate(Count = ifelse(grepl("ANTHONY HENDAY", neighbourhood_name), NA, Count)) %>%
   dplyr::mutate(Count = ifelse(grepl("RIVER VALLEY", neighbourhood_name), NA, Count)) %>%
   dplyr::mutate(Count = ifelse(grepl("CREEK RAVINE", neighbourhood_name), NA, Count)) %>%
-  dplyr::mutate(tree_prop = Count / num_properties)
+  dplyr::mutate(tree_prop = Count /(num_properties + 0.01))
 
 # Not using
-
-unique_neighbourhoods <- unique(yeg$NEIGHBOURHOOD_NAME)
-colors <- brewer.pal(n = min(length(unique_neighbourhoods), 9), name = "Set1")
-
-# assign colors to neighbourhoods
-if (length(unique_neighbourhoods) > 9) {
-  colors <- grDevices::colorRampPalette(RColorBrewer::brewer.pal(9, "Set1"))(length(unique_neighbourhoods))}
-color_df <- dplyr::data_frame(colors, unique_neighbourhoods)
-yeg$colors <- color_df$colors[base::match(yeg$NEIGHBOURHOOD_NAME, color_df$unique_neighbourhoods)]
 
 remove(yeg_neighbourhoods, yeg)

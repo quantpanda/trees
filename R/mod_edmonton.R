@@ -13,8 +13,12 @@ mod_edmonton_ui <- function(id){
     leaflet::leafletOutput(ns("map"), width = "100%", height = 850),
     shiny::absolutePanel(id = "controls", class = "panel panel-default", fixed = TRUE,
                          draggable = TRUE, top = 60, left = "auto", right = 20, bottom = "auto",
-                         width = 330, height = "auto",
+                         width = 330, height = "auto", style = "background-color: rgba(0, 0, 0, 0.8); padding: 10px; border-radius: 10px;",
                         h3("Neighbourhoods Dashboard"),
+                        shiny::radioButtons(ns("colInput"), "Layers",
+                                            choices = c("Tree density" = "tree_prop", "Number of Households" = "num_properties", "Median Proprety Assessment" = "median_assessed_value",
+                                                        "Max Proprety Assessment" = "max_assessed_value"),
+                                            selected = "tree_prop"),
 
                         plotly::plotlyOutput(ns("plot_dash"))
     )
@@ -32,18 +36,32 @@ mod_edmonton_server <- function(id, r){
 
     output$map <- leaflet::renderLeaflet({
       #browser()
+
       # # get user input for desired output
-      var_x <- r$yeg_neighbourhoods[["Count"]]
-      range_max <- max(var_x, na.rm = TRUE)
-      # if range_max is zero, add a small increment to ensure uniqueness in breaks
-      ifelse(range_max == 0, range_max <- 1, 0)
-      # create dynamic bins
-      dynamic_bins <- round(c(0, seq(10, range_max, length.out = 7)), digits = 0)
-      # color palette
-      pal <- leaflet::colorBin(c("Greens"), domain = var_x, bins = dynamic_bins)
+      var_x <- r$yeg_neighbourhoods[[input$colInput]]
+
+      quantiles <- stats::quantile(var_x, probs = c(0.1, 0.25, 0.35, 0.5, 0.65, 0.75, 0.9), na.rm = TRUE)
+      lower_bounds <- min(var_x, na.rm = TRUE)
+      upper_bounds <- max(var_x, na.rm = TRUE)
+      breaks <- c(
+        lower_bounds,
+        quantiles,
+        upper_bounds)
+
+      # Define a larger color palette to accommodate additional breaks
+      colors <- colorRampPalette(RColorBrewer::brewer.pal(9, "Blues"))(length(breaks) - 1)
+
+      # Create color palette function
+      qpal <- leaflet::colorBin(colors, domain = var_x, bins = breaks, na.color = "grey")
+
 
       labss <- lapply(1:nrow(r$yeg_neighbourhoods), function(i) {
-        shiny::HTML(paste("Neighbourhood: ", r$yeg_neighbourhoods$neighbourhood_name[i], "<br>"))
+        shiny::HTML(paste("Neighbourhood: ", r$yeg_neighbourhoods$neighbourhood_name[i], "<br>",
+                          "Tree Count: ", r$yeg_neighbourhoods$Count[i], "<br>",
+                          "Tree Density: ", round(r$yeg_neighbourhoods$tree_prop[i], 2), "<br>",
+                          "Median Property Assessment: ", r$yeg_neighbourhoods$median_assessed_value[i], "<br>",
+                          "Max Property Assessment: ", r$yeg_neighbourhoods$max_assessed_value[i], "<br>",
+                          "Number of Households: ", r$yeg_neighbourhoods$num_properties[i], "<br>"))
       })
 
 
@@ -53,7 +71,7 @@ mod_edmonton_server <- function(id, r){
         leaflet::setView(lng = -113.4909, lat = 53.5444, zoom = 11) %>%
 
         leaflet::addPolygons(data = r$yeg_neighbourhoods$coords,
-                             fillColor = pal(var_x),
+                             fillColor = qpal(var_x),
                              fillOpacity = 0.7,
                              color = "black",
                              opacity = 1,
@@ -65,19 +83,45 @@ mod_edmonton_server <- function(id, r){
                                color = "#000",
                                bringToFront = TRUE),
                              group = "Neighbourhoods") %>%
-        leaflet::addLegend(pal = pal, values = var_x, title = "Count") %>%
-
-        #leaflet.extras::addHeatmap(data = r$yeg, lng = ~LONGITUDE, lat = ~LATITUDE, blur = 4, max = 1, minOpacity = 1,radius = 2, group = "Trees") %>%
+        leaflet::addLegend(pal = qpal, values = var_x, title = "Count") %>%
         leaflet::addLayersControl(
           overlayGroups = c("Neighbourhoods"),
           options = leaflet::layersControlOptions(collapsed = FALSE)
         )
     })
 
-    output$plot_dash <- plotly::renderPlotly({
-      plotly::plot_ly(r$yeg_neighbourhoods, x = ~neighbourhood_name, y = ~Count, type = "bar") %>%
-        plotly::layout(title = "Neighbourhoods Dashboard")
+    #Update plot on click
+    observe({
+
+      event <- input$map_shape_click
+      print(event)
+      str(event)
+      if (is.null(event))
+        return()
+
+      # get the neighbourhood name
+      neighbourhood_name <- r$yeg_neighbourhoods$neighbourhood_name[event]
+
+      # get the neighbourhood data
+      neighbourhood_data <- r$yeg_neighbourhoods[r$yeg_neighbourhoods$neighbourhood_name == neighbourhood_name, ]
+
+      # get the property assessment data
+      property_assessment_med <- neighbourhood_data$median_assessed_value
+      property_assessment_min <- neighbourhood_data$min_assessed_value
+      property_assessment_max <- neighbourhood_data$max_assessed_value
+
+      output$plot_dash <- plotly::renderPlotly({
+        # create the plot
+        plotly::plot_ly() %>%
+          plotly::add_trace(x = c("Min", "Median", "Max"),
+                            y = c(property_assessment_min, property_assessment_med, property_assessment_max),
+                            type = "scatter", mode = "lines+markers") %>%
+          plotly::layout(title = paste("Property Assessment Range for ", neighbourhood_name),
+                         xaxis = list(title = "Property Assessment"),
+                         yaxis = list(title = "Value"))
+      })
     })
+
 
   })
 
