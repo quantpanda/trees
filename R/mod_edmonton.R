@@ -67,9 +67,9 @@ mod_edmonton_server <- function(id, r){
                              group = "Neighbourhoods") %>%
         leaflet::addLegend(pal = pal, values = var_x, title = "Count") %>%
 
-        leaflet.extras::addHeatmap(data = r$yeg, lng = ~LONGITUDE, lat = ~LATITUDE, blur = 4, max = 1, minOpacity = 1,radius = 2, group = "Trees") %>%
+        #leaflet.extras::addHeatmap(data = r$yeg, lng = ~LONGITUDE, lat = ~LATITUDE, blur = 4, max = 1, minOpacity = 1,radius = 2, group = "Trees") %>%
         leaflet::addLayersControl(
-          overlayGroups = c("Neighbourhoods", "Trees"),
+          overlayGroups = c("Neighbourhoods"),
           options = leaflet::layersControlOptions(collapsed = FALSE)
         )
     })

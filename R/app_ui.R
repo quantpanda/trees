@@ -10,7 +10,7 @@ app_ui <- function(request) {
   golem_add_external_resources()
   # Your application UI logic
   shiny::navbarPage("City of Edmonton Interactive Map",
-                    theme = shinythemes::shinytheme("darkly"),
+                    theme = shinythemes::shinytheme("cyborg"),
                     tabPanel("Edmonton", mod_edmonton_ui("edmonton_1")),
                     tabPanel("Dashboard", mod_dashboard_ui("dashboard_1", population)),
                     tabPanel("Mortgage Calculator", mod_mortgage_ui("mortgage_1")),

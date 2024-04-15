@@ -17,15 +17,22 @@ mod_dashboard_ui <- function(id, population){
           shiny::h3("Neighbourhoods Dashboard"),
           shiny::selectInput(ns("neighbourhood1"),"Select Neighbourhood 1",
             choices = base::unique(population$neighbourhood_name),
-            selected = "ABBOTTSFIELD "
+            selected = "ABBOTTSFIELD"
           ),
           shiny::selectInput(ns("neighbourhood2"),"Select Neighbourhood 2",
                              choices = base::unique(population$neighbourhood_name),
-                             selected = "ABBOTTSFIELD "
-          )
+                             selected = "WESTMOUNT")
         ),
         shiny::mainPanel(
-          plotly::plotlyOutput(ns("plot_dash"))
+          h3("Neighbourhoods Map"),
+          leaflet::leafletOutput(ns("neighbourhood_map")),
+          h3("Population by Age Group"),
+          plotly::plotlyOutput(ns("plot_dash")),
+          h3("Total Population"),
+          plotly::plotlyOutput(ns("plot_dash2")),
+          h3("Income Distribution"),
+          plotly::plotlyOutput(ns("plot_dash3"))
+
         )
       )
     )
@@ -38,31 +45,181 @@ mod_dashboard_ui <- function(id, population){
 mod_dashboard_server <- function(id, r){
   moduleServer( id, function(input, output, session){
     ns <- session$ns
-
-    filtered_data <- reactive({
-      #filter data based on input
-      res <- r$population %>% dplyr::filter(r$population$neighbourhood_name == input$neighbourhood1)
-      res
+    # filter data based on selected neighbourhoods
+    filter_data <- reactive({
+      r$yeg_neighbourhoods %>% dplyr::filter(neighbourhood_name %in% c(input$neighbourhood1, input$neighbourhood2))
     })
 
-    filtered_data2 <- reactive({
-      #filter data based on input
-      res2 <- r$population %>% dplyr::filter(r$population$neighbourhood_name == input$neighbourhood2)
-      res2
+
+    # mark both neighbourhoods on a leaflet
+    output$neighbourhood_map <- leaflet::renderLeaflet({
+      # color palette
+      labss <- lapply(1:nrow(filter_data()), function(i) {
+        shiny::HTML(paste("Neighbourhood: ", filter_data()$neighbourhood_name[i], "<br>"))
+      })
+      leaflet::leaflet() %>%
+        leaflet::addProviderTiles("Stadia.AlidadeSmoothDark") %>%
+
+        leaflet::setView(lng = -113.4909, lat = 53.5444, zoom = 11) %>%
+
+        leaflet::addPolygons(data = filter_data()$coords,
+                             fillColor = "darkgreen",
+                             fillOpacity = 0.7,
+                             color = "black",
+                             opacity = 1,
+                             stroke = T,
+                             weight = 1,
+                             label = labss,
+                             highlightOptions = leaflet::highlightOptions(
+                               weight = 5,
+                               color = "#000",
+                               bringToFront = TRUE))
     })
 
     output$plot_dash <- plotly::renderPlotly({
       #plot histogram as plotly
+      plotly::plot_ly(data = r$population %>% dplyr::filter(neighbourhood_name == input$neighbourhood1), x = ~class, y = ~prop*100, name = ~input$neighbourhood1, type = 'bar',
+              marker = list(color = 'rgb(250,207,206)', line = list(color = 'rgb(8,48,107)', width = 1.5))) %>%
+        plotly::add_trace(data = r$population %>% dplyr::filter(neighbourhood_name == input$neighbourhood2), x = ~class, y = ~prop*100, name = ~input$neighbourhood2, marker = list(color = '#23606E')) %>%
+        plotly::layout(
+          xaxis = list(
+            zeroline = FALSE,
+            title = list(
+              text = "Age Group",
+              font = list(
+                color = "white"  # Set X axis label font color to white
+              )
+            ),
+            tickfont = list(
+              color = "white"  # Set X axis tick font color to white
+            )
+          ),
+          yaxis = list(
+            zeroline = FALSE,
+            title = list(
+              text = "Proportion (%)",
+              font = list(
+                color = "white"  # Set Y axis label font color to white
+              )
+            ),
+            tickfont = list(
+              color = "white"  # Set Y axis tick font color to white
+            )
+          ),
+          title = list(
+            text = "",
+            font = list(
+              color = "white"  # Set title font color to white
+            )
+          ),
+          legend = list(
+            font = list(
+              color = "white"  # Set legend font color to white
+            )
+          ),
+          paper_bgcolor = "rgb(243, 243, 243, 0)",  # Set background color to black for better contrast
+          plot_bgcolor = "rgb(243, 243, 243, 0)",   # Set plot area background color to black
+          showlegend = T
+        )
 
-      plotly::plot_ly(data = filtered_data(), x = ~class, y = ~popu, name = ~input$neighbourhood1, type = 'bar',
-              marker = list(color = 'rgb(158,202,225)', line = list(color = 'rgb(8,48,107)', width = 1.5))) %>%
-        plotly::add_trace(data = filtered_data2(), y = ~popu, name = ~input$neighbourhood2, marker = list(color = 'rgb(58,200,225)')) %>%
-        plotly::layout(title = "Neighbourhoods Dashboard",
-               xaxis = list(title = "Neighbourhood"),
-               yaxis = list(title = "Count"),
-               hovermode = "closest",
-               paper_bgcolor = "rgb(243, 243, 243)",
-               plot_bgcolor = "rgb(243, 243, 243)")
+    })
+    # compare total population using horizontal bar chart
+    output$plot_dash2 <- plotly::renderPlotly({
+
+      #plot histogram as plotly
+      plotly::plot_ly(data = r$yeg_neighbourhoods %>% dplyr::filter(neighbourhood_name == input$neighbourhood1), x = ~Population, y = ~neighbourhood_name, name = ~input$neighbourhood1, type = 'bar',
+                      marker = list(color = 'rgb(250,207,206)', line = list(color = 'rgb(8,48,107)', width = 1.5))) %>%
+        plotly::add_trace(data = r$yeg_neighbourhoods %>% dplyr::filter(neighbourhood_name == input$neighbourhood2), y = ~neighbourhood_name, name = ~input$neighbourhood2, marker = list(color = '#23606E')) %>%
+        plotly::layout(
+          xaxis = list(
+            zeroline = FALSE,
+            title = list(
+              text = "",
+              font = list(
+                color = "white"  # Set X axis label font color to white
+              )
+            ),
+            tickfont = list(
+              color = "white"  # Set X axis tick font color to white
+            )
+          ),
+          yaxis = list(
+            zeroline = FALSE,
+            title = list(
+              text = "",
+              font = list(
+                color = "white"  # Set Y axis label font color to white
+              )
+            ),
+            tickfont = list(
+              color = "white"  # Set Y axis tick font color to white
+            )
+          ),
+          title = list(
+            text = "",
+            font = list(
+              color = "white"  # Set title font color to white
+            )
+          ),
+          legend = list(
+            font = list(
+              color = "white"  # Set legend font color to white
+            )
+          ),
+          paper_bgcolor = "rgb(243, 243, 243, 0)",  # Set background color to black for better contrast
+          plot_bgcolor = "rgb(243, 243, 243, 0)",   # Set plot area background color to black
+          showlegend = T
+        )
+    })
+
+
+    # Income comparison
+    output$plot_dash3 <- plotly::renderPlotly({
+      #plot histogram as plotly
+      plotly::plot_ly(data = r$income %>% dplyr::filter(neighbourhood_name == input$neighbourhood1) %>% dplyr::arrange(class_num),x = ~class_num, y = ~prop*100, name = ~input$neighbourhood1, type = 'bar',
+                      marker = list(color = 'rgb(250,207,206)', line = list(color = 'rgb(8,48,107)', width = 1.5))) %>%
+        plotly::add_trace(data = r$income %>% dplyr::filter(neighbourhood_name == input$neighbourhood2) %>% dplyr::arrange(class_num), x = ~class_num, y = ~prop*100, name = ~input$neighbourhood2, marker = list(color = '#23606E')) %>%
+        plotly::layout(
+          xaxis = list(
+            zeroline = FALSE,
+
+            title = list(
+              text = "Income",
+              font = list(
+                color = "white"  # Set X axis label font color to white
+              )
+            ),
+            tickfont = list(
+              color = "white"  # Set X axis tick font color to white
+            )
+          ),
+          yaxis = list(
+            zeroline = FALSE,
+            title = list(
+              text = "Propotion (%)",
+              font = list(
+                color = "white"  # Set Y axis label font color to white
+              )
+            ),
+            tickfont = list(
+              color = "white"  # Set Y axis tick font color to white
+            )
+          ),
+          title = list(
+            text = "",
+            font = list(
+              color = "white"  # Set title font color to white
+            )
+          ),
+          legend = list(
+            font = list(
+              color = "white"  # Set legend font color to white
+            )
+          ),
+          paper_bgcolor = "rgb(243, 243, 243, 0)",  # Set background color to black for better contrast
+          plot_bgcolor = "rgb(243, 243, 243, 0)",   # Set plot area background color to black
+          showlegend = T
+        )
     })
   })
 }
