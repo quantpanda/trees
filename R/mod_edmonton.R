@@ -10,11 +10,15 @@
 mod_edmonton_ui <- function(id){
   ns <- NS(id)
   tagList(
-    shiny::tabPanel("Edmonton",
-                    "This is the Edmonton module"
+    leaflet::leafletOutput(ns("map"), width = "100%", height = 850),
+    shiny::absolutePanel(id = "controls", class = "panel panel-default", fixed = TRUE,
+                         draggable = TRUE, top = 60, left = "auto", right = 20, bottom = "auto",
+                         width = 330, height = "auto",
+                        h3("Neighbourhoods Dashboard"),
+
+                        plotly::plotlyOutput(ns("plot_dash"))
     )
   )
-  leaflet::leafletOutput(ns("map"), width = "100%", height = 800)
 }
 
 
@@ -24,35 +28,55 @@ mod_edmonton_ui <- function(id){
 mod_edmonton_server <- function(id, r){
   moduleServer( id,
                 function(input, output, session){
-    # yeg_tree_count <- trees::yeg %>%
-    #   dplyr::group_by(NEIGHBOURHOOD_NAME) %>%
-    #   dplyr::summarise(count = dplyr::n())
-
-    #yeg_tree_count$colors <- grcolors[match(yeg_tree_count$`neighbourhood_name`, unique_neighbourhoods)]
-
     ns <- session$ns
+
     output$map <- leaflet::renderLeaflet({
+      #browser()
+      # # get user input for desired output
+      var_x <- r$yeg_neighbourhoods[["Count"]]
+      range_max <- max(var_x, na.rm = TRUE)
+      # if range_max is zero, add a small increment to ensure uniqueness in breaks
+      ifelse(range_max == 0, range_max <- 1, 0)
+      # create dynamic bins
+      dynamic_bins <- round(c(0, seq(10, range_max, length.out = 7)), digits = 0)
+      # color palette
+      pal <- leaflet::colorBin(c("Greens"), domain = var_x, bins = dynamic_bins)
+
+      labss <- lapply(1:nrow(r$yeg_neighbourhoods), function(i) {
+        shiny::HTML(paste("Neighbourhood: ", r$yeg_neighbourhoods$neighbourhood_name[i], "<br>"))
+      })
+
+
       leaflet::leaflet() %>%
-        leaflet::addTiles() %>%
+        leaflet::addProviderTiles("Stadia.AlidadeSmoothDark") %>%
 
         leaflet::setView(lng = -113.4909, lat = 53.5444, zoom = 11) %>%
-        #leaflet::addMarkers(lng = -113.4909, lat = 53.5444, popup = "Edmonton, Alberta") %>%
-        # leaflet::addCircleMarkers(lng = yeg_data$LONGITUDE, lat = yeg_data$LATITUDE, radius = 5, color = yeg_data$colors, fill = TRUE, fillOpacity = 0.8,
-        #                  popup = paste("Neighbourhood: ", yeg_data$NEIGHBOURHOOD_NAME, "<br>",
-        #                                "Year: ", yeg_data$Year, "<br>",
-        #                                "Condition: ", yeg_data$CONDITION_PERCENT, "%<br>",
-        #                                "Planted: ", yeg_data$PLANTED_DATE, "<br>",
-        #                                "Bears Edible Fruit: ", yeg_data$`Bears Edible Fruit`, "<br>",
-        #                                "Type of Edible Fruit: ", yeg_data$`Type of Edible Fruit`, "<br>",
-        #                                "Diameter: ", yeg_data$DIAMETER_BREAST_HEIGHT, "cm")) %>%
-        leaflet::addPolygons(data = r$yeg_neighbourhoods, fillColor = "transparent", color = "black", weight = 1, group = "Neighbourhoods") %>%
-        #leaflet::addLegend("bottomright", pal = pal, values = yeg_tree_count$count, title = "Number of Trees", labFormat = labelFormat(prefix = "", suffix = " trees"), opacity = 1) %>%
+
+        leaflet::addPolygons(data = r$yeg_neighbourhoods$coords,
+                             fillColor = pal(var_x),
+                             fillOpacity = 0.7,
+                             color = "black",
+                             opacity = 1,
+                             stroke = T,
+                             weight = 1,
+                             label = labss,
+                             highlightOptions = leaflet::highlightOptions(
+                               weight = 5,
+                               color = "#000",
+                               bringToFront = TRUE),
+                             group = "Neighbourhoods") %>%
+        leaflet::addLegend(pal = pal, values = var_x, title = "Count") %>%
 
         leaflet.extras::addHeatmap(data = r$yeg, lng = ~LONGITUDE, lat = ~LATITUDE, blur = 4, max = 1, minOpacity = 1,radius = 2, group = "Trees") %>%
         leaflet::addLayersControl(
           overlayGroups = c("Neighbourhoods", "Trees"),
           options = leaflet::layersControlOptions(collapsed = FALSE)
         )
+    })
+
+    output$plot_dash <- plotly::renderPlotly({
+      plotly::plot_ly(r$yeg_neighbourhoods, x = ~neighbourhood_name, y = ~Count, type = "bar") %>%
+        plotly::layout(title = "Neighbourhoods Dashboard")
     })
 
   })

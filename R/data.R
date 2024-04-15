@@ -23,5 +23,5 @@
 #' @format data frame
 #' @returns `tibble`
 #' @source <https://data.edmonton.ca/Census/2016-Census-Population-by-Household-Income-Neighbo/jkjx-2hix/data_preview>
-"populations"
+"population"
 

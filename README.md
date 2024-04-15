@@ -7,7 +7,9 @@ apps.***
 
 Author: Olivier Haley, University of Alberta
 
-# trees
+# Alternative Real Estate Analytics (AREA)
+
+### Package name: (trees)
 
 <!-- badges: start -->
 <!-- badges: end -->

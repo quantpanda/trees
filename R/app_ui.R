@@ -5,18 +5,16 @@
 #' @import shiny
 #' @noRd
 app_ui <- function(request) {
-  #theme
-
-  tagList(
-
-    # Leave this function for adding external resources
-    golem_add_external_resources(),
-    # Your application UI logic
-    fluidPage(
-      theme = shinythemes::shinytheme("darkly"),
-      h1("City of Edmonton Interactive Map"),
-      mod_edmonton_ui("edmonton_1"),
-    )
+  population = trees::population
+  # Leave this function for adding external resources
+  golem_add_external_resources()
+  # Your application UI logic
+  shiny::navbarPage("City of Edmonton Interactive Map",
+                    theme = shinythemes::shinytheme("darkly"),
+                    tabPanel("Edmonton", mod_edmonton_ui("edmonton_1")),
+                    tabPanel("Dashboard", mod_dashboard_ui("dashboard_1", population)),
+                    tabPanel("Mortgage Calculator", mod_mortgage_ui("mortgage_1")),
+                    tabPanel("About", mod_about_ui("about_1"))
   )
 }
 
