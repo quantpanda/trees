@@ -9,12 +9,15 @@ Depends:
     R (>= 2.10)
 Imports: 
     config (>= 0.3.2),
+    dplyr,
     golem (>= 0.4.1),
     leaflet,
     leaflet.extras,
     magrittr,
+    plotly,
     shiny (>= 1.8.1),
-    shinythemes
+    shinythemes,
+    tibble
 Suggests: 
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
