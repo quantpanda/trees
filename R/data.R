@@ -1,10 +1,3 @@
-#' yeg tree data
-#' @description Edmonton tree data.
-#' @format data frame
-#' @returns `tibble`
-#' @source <https://data.edmonton.ca/Environmental-Services/Trees/eecg-fc54/about_data>
-"yeg"
-
 
 #' Yeg Neighborhood data
 #'

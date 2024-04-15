@@ -9,66 +9,61 @@
 #' @importFrom shiny NS tagList
 mod_mortgage_ui <- function(id){
   ns <- NS(id)
-  tagList(
-    shiny::titlePanel("Monthly Mortgage Calculator"),
+  shiny::tagList(
+    shiny::titlePanel("Find Neighbourhoods Within Your Budget"),
 
     shiny::sidebarLayout(
       shiny::sidebarPanel(
-        shiny::numericInput(ns("house_value"), "House Value ($)", value = 200000, min = 10000),
-        shiny::numericInput(ns("down_payment"), "Down Payment ($)", value = 20000, min = 0),
-        shiny::sliderInput(ns("interest_rate"), "Interest Rate (%)", value = 4, min = 0, max = 20, step = 0.1),
-        shiny::sliderInput(ns("amortization_years"), "Amortization Period (Years)", value = 30, min = 1, max = 50)
+        shiny::numericInput(ns("down_payment"), "Down Payment ($)", value = 50000),
+        shiny::numericInput(ns("monthly_payment"), "Monthly Payment ($)", value = 2000),
+        shiny::selectInput(ns("amortization_schedule"), "Amortization Schedule",
+                    choices = c("15 years", "20 years", "30 years"), selected = "30 years"),
+        shiny::numericInput(ns("interest_rate"), "Interest Rate (%)", value = 4.5)
       ),
 
       shiny::mainPanel(
-        shiny::tableOutput(ns("mortgage_table"))
+        shiny::tableOutput(ns("affordable_neighborhoods"))
       )
-    )
-
-  )
+    ))
 }
 
 #' mortgage Server Functions
 #'
 #' @noRd
-mod_mortgage_server <- function(id){
-  moduleServer( id, function(input, output, session){
+mod_mortgage_server <- function(id, r) {
+  moduleServer(id, function(input, output, session) {
     ns <- session$ns
-    output$mortgage_table <- renderTable({
-      # Calculate mortgage payments
-      house_value <- input$house_value
-      down_payment <- input$down_payment
+    output$affordable_neighborhoods <- renderTable({
+      # Calculate affordability based on user inputs
+      n <- ifelse(input$amortization_schedule == "15 years", 15,
+                  ifelse(input$amortization_schedule == "20 years", 20, 30))
+
       interest_rate <- input$interest_rate / 100 / 12
-      amortization_years <- input$amortization_years * 12
 
-      principal <- house_value - down_payment
-      monthly_payment <- principal * (interest_rate * (1 + interest_rate) ^ amortization_years) / ((1 + interest_rate) ^ amortization_years - 1)
+      c <- input$monthly_payment
 
-      # Generate amortization schedule
-      payment_date <- seq(as.Date(Sys.Date()), by = "months", length.out = amortization_years)
-      interest_payment <- principal * interest_rate
-      principal_payment <- monthly_payment - interest_payment
+      down_payment <- input$down_payment
 
-      remaining_principal <- rep(NA, length(payment_date))
-      remaining_principal[1] <- principal
+      # Calculate the loan amount
+      loan_amount <- (c  * ((1 + interest_rate)^(n * 12)-1))/(interest_rate * ((1 + interest_rate)^(n * 12)))
 
-      for (i in 2:length(payment_date)) {
-        remaining_principal[i] <- remaining_principal[i - 1] - principal_payment
-        if (remaining_principal[i] < 0) remaining_principal[i] <- 0
-      }
+      # Calculate affordability
+      affordability <- r$yeg_neighbourhoods %>%
+        dplyr::filter(r$yeg_neighbourhoods$num_properties > 100) %>%
+        dplyr::mutate(affordability = (down_payment + loan_amount))
+      # Filter neighborhoods that user can afford
+      affordable_neighborhoods <- affordability %>%
+        dplyr::filter(affordability >= median_assessed_value) %>%
+        dplyr::select(neighbourhood_name)
 
-      amortization_data <- tibble::tibble(
-        Payment_Date = payment_date,
-        Interest_Payment = rep(interest_payment, length(payment_date)),
-        Principal_Payment = rep(principal_payment, length(payment_date)),
-        Remaining_Principal = remaining_principal
-      )
 
-      amortization_data
+
+
+      return(affordable_neighborhoods)
     })
-
   })
 }
+
 
 ## To be copied in the UI
 # mod_mortgage_ui("mortgage_1")
