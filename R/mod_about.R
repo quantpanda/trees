@@ -15,11 +15,12 @@ mod_about_ui <- function(id){
       shiny::column(12,
                     shiny::wellPanel(
                       h3("Welcome to the Edmonton Neighbourhoods Dashboard"),
-                      p("This dashboard provides an overview of the neighbourhoods in Edmonton, Alberta."),
-                      p("The dashboard is divided into two sections:"),
-                      p("1. The map on the left shows the neighbourhoods in Edmonton. The colour of each neighbourhood is based on the number of crimes reported in that neighbourhood."),
-                      p("2. The plot on the right shows the number of crimes reported in each neighbourhood."),
-                      p("To get started, select a year and a crime type from the dropdown menus.")
+                      p("This dashboard provides an overview of the neighbourhoods in Edmonton with a focus on real estate analytics."),
+                      p("The dashboard is divided into three sections:"),
+                      p("1. The map on the left shows the neighbourhoods in Edmonton. The colour of each neighbourhood is based on the input you select."),
+                      p("2. The middle tab (Compare Neighbourhoods) is a dashboard to get familiar with potential neighborhoods."),
+                      p("3. The right tab is a Mortgage Calculator which informs the user of suitable neighbourhoods within their budget.")
+
 
 
           )
@@ -27,16 +28,16 @@ mod_about_ui <- function(id){
       shiny::column(12,
                     shiny::wellPanel(
                       h3("Data Sources"),
-                      p("The data used in this dashboard is from the Edmonton Open Data Portal."),
-                      p("The crime data is from the Edmonton Police Service and the neighbourhood boundaries data is from the City of Edmonton.")
-                    )
+                      p("The data used in this dashboard is from the Edmonton Open Data Portal."))
       ),
       shiny::column(12,
                     shiny::wellPanel(
                       h3("Author: Olivier Haley"),
                       # insert link to github
                       p("You can find the code for this dashboard on my GitHub page:"),
-                      a("https://github.com/tigerwoodsjr/trees")
+                      # link
+
+                      shiny::a("https://github.com/tigerwoodsjr/trees")
                     )
       )
 

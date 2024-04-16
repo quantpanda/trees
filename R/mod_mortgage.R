@@ -22,7 +22,8 @@ mod_mortgage_ui <- function(id){
       ),
 
       shiny::mainPanel(
-        shiny::tableOutput(ns("affordable_neighborhoods"))
+        leaflet::leafletOutput(ns("budget_map"), width = 600, height = 600),
+
       )
     ))
 }
@@ -33,8 +34,10 @@ mod_mortgage_ui <- function(id){
 mod_mortgage_server <- function(id, r) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
-    output$affordable_neighborhoods <- renderTable({
-      # Calculate affordability based on user inputs
+
+
+    # filter data based on selected neighbourhoods
+    filter_neighbourhood <- reactive({
       n <- ifelse(input$amortization_schedule == "15 years", 15,
                   ifelse(input$amortization_schedule == "20 years", 20, 30))
 
@@ -56,10 +59,32 @@ mod_mortgage_server <- function(id, r) {
         dplyr::filter(affordability >= median_assessed_value) %>%
         dplyr::select(neighbourhood_name)
 
+      r$yeg_neighbourhoods %>% dplyr::filter(neighbourhood_name %in% c(affordable_neighborhoods$neighbourhood_name))
+    })
 
+    # mark both neighbourhoods on a leaflet
+    output$budget_map <- leaflet::renderLeaflet({
+      # color palette
+      labss <- lapply(1:nrow(filter_neighbourhood()), function(i) {
+        shiny::HTML(paste("Neighbourhood: ", filter_neighbourhood()$neighbourhood_name[i], "<br>"))
+      })
+      leaflet::leaflet() %>%
+        leaflet::addProviderTiles("Stadia.AlidadeSmoothDark") %>%
 
+        leaflet::setView(lng = -113.4909, lat = 53.5444, zoom = 11) %>%
 
-      return(affordable_neighborhoods)
+        leaflet::addPolygons(data = filter_neighbourhood()$coords,
+                             fillColor = "darkgreen",
+                             fillOpacity = 0.7,
+                             color = "black",
+                             opacity = 1,
+                             stroke = T,
+                             weight = 1,
+                             label = labss,
+                             highlightOptions = leaflet::highlightOptions(
+                               weight = 5,
+                               color = "#000",
+                               bringToFront = TRUE))
     })
   })
 }

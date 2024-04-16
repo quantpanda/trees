@@ -15,9 +15,9 @@ Imports:
     magrittr,
     plotly,
     RColorBrewer,
+    sf,
     shiny (>= 1.8.1),
-    shinythemes,
-    tibble
+    shinythemes
 Suggests: 
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
