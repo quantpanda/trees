@@ -4,7 +4,7 @@
 # yeg <- httr::GET(api_endpoint) %>% httr::content("text") %>% jsonlite::fromJSON() %>% dplyr::as_tibble()
 
 # RAW DATA
-yeg_raw <- readr::read_csv("https://data.edmonton.ca/api/views/eecg-fc54/rows.csv?date=20240414&accessType=DOWNLOAD")
+parks_raw <- readr::read_csv("https://data.edmonton.ca/api/views/gdd9-eqv9/rows.csv?date=20240415&accessType=DOWNLOAD")
 
 api_endpoint_n <- "https://data.edmonton.ca/resource/65fr-66s6.json?$limit=500000"
 yeg_neighbourhoods_raw <- readr::read_csv("https://data.edmonton.ca/api/views/65fr-66s6/rows.csv?date=20240414&accessType=DOWNLOAD")
@@ -17,6 +17,8 @@ assessments_raw <- httr::GET(api_endpoint_assessment) %>% httr::content("text") 
 
 api_endpoint_pop <- "https://data.edmonton.ca/resource/phd4-y42v.json"
 population_raw <- httr::GET(api_endpoint_pop) %>% httr::content("text") %>% jsonlite::fromJSON() %>% dplyr::as_tibble()
+
+
 
 
 # MANIPULATED DATA
@@ -61,7 +63,11 @@ population <- population_raw %>%
   dplyr::arrange(neighbourhood_name, class)
 
 
-
+parks <- parks_raw %>%
+  dplyr::mutate(park_name = dplyr::coalesce(`Official Name`, `Common Name`))%>%
+  dplyr::transmute(coords = sf::st_as_sfc(`Multipolygon`),
+                                park_name) %>%
+  na.omit()
 
 # POPULATION TOTAL
 total_population <- population %>%

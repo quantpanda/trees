@@ -9,6 +9,7 @@ app_server <- function(input, output, session) {
   r$yeg_neighbourhoods <- trees::yeg_neighbourhoods
   r$population <- trees::population
   r$income <- trees::income
+  r$parks <- trees::parks
   mod_edmonton_server("edmonton_1", r = r)
   mod_dashboard_server("dashboard_1", r = r)
   mod_mortgage_server("mortgage_1", r = r)
