@@ -16,8 +16,8 @@ mod_edmonton_ui <- function(id){
                          width = 330, height = "auto", style = "background-color: rgba(0, 0, 0, 0.8); padding: 10px; border-radius: 10px;",
                         h4("Neighbourhoods"),
                         shiny::radioButtons(ns("colInput"), "Layers",
-                                            choices = c("Tree density" = "tree_prop", "Number of Households" = "num_properties", "Median Proprety Assessment" = "median_assessed_value",
-                                                        "Max Proprety Assessment" = "max_assessed_value"),
+                                            choices = c("Tree density" = "tree_prop", "Number of Households" = "num_properties", "Median Property Assessment" = "median_assessed_value",
+                                                        "Max Property Assessment" = "max_assessed_value"),
                                             selected = "tree_prop"),
 
                         br(),

@@ -16,9 +16,9 @@ mod_mortgage_ui <- function(id){
       shiny::sidebarPanel(
         # insert text
         shiny::h4("Mortgage Calculator"),
-        shiny::p("Use the mortgage calculator to determine the maximum loan amount you can afford based on your monthly payment. Note, proprety assessment values
+        shiny::p("Use the mortgage calculator to determine the maximum loan amount you can afford based on your monthly payment. Note, property assessment values
                  cannot represent market values. The affordability is calculated based on the median assessed value of properties in each neighbourhood."),
-        shiny::p("The output map will show neighbourhoods where the median assessed value is smaller than or equal to the loan amount you can afford."),
+        shiny::p("The output map shows neighbourhoods where the median assessed value is smaller than or equal to the loan amount you can afford."),
         shiny::numericInput(ns("down_payment"), "Down Payment ($)", value = 50000),
         shiny::numericInput(ns("monthly_payment"), "Monthly Payment ($)", value = 2000),
         shiny::selectInput(ns("amortization_schedule"), "Amortization Schedule",
