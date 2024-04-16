@@ -20,6 +20,8 @@ mod_edmonton_ui <- function(id){
                                                         "Max Proprety Assessment" = "max_assessed_value"),
                                             selected = "tree_prop"),
 
+                        br(),
+
                         plotly::plotlyOutput(ns("plot_dash"))
     )
   )
@@ -48,19 +50,18 @@ mod_edmonton_server <- function(id, r){
         quantiles,
         upper_bounds)
 
-      # Define a larger color palette to accommodate additional breaks
-      colors <- colorRampPalette(RColorBrewer::brewer.pal(9, "Blues"))(length(breaks) - 1)
+
 
       # Create color palette function
-      qpal <- leaflet::colorBin(colors, domain = var_x, bins = breaks, na.color = "grey")
+      qpal <- leaflet::colorBin("Blues", domain = var_x, bins = breaks, na.color = "grey")
 
 
       labss <- lapply(1:nrow(r$yeg_neighbourhoods), function(i) {
         shiny::HTML(paste("Neighbourhood: ", r$yeg_neighbourhoods$neighbourhood_name[i], "<br>",
                           "Tree Count: ", r$yeg_neighbourhoods$Count[i], "<br>",
                           "Tree Density: ", round(r$yeg_neighbourhoods$tree_prop[i], 2), "<br>",
-                          "Median Property Assessment: ", r$yeg_neighbourhoods$median_assessed_value[i], "<br>",
-                          "Max Property Assessment: ", r$yeg_neighbourhoods$max_assessed_value[i], "<br>",
+                          "Median Property Assessment: ", scales::dollar(r$yeg_neighbourhoods$median_assessed_value[i], prefix = "$"), "<br>",
+                          "Max Property Assessment: ", scales::dollar(r$yeg_neighbourhoods$max_assessed_value[i], prefix = "$"), "<br>",
                           "Number of Households: ", r$yeg_neighbourhoods$num_properties[i], "<br>"))
       })
 
@@ -97,7 +98,8 @@ mod_edmonton_server <- function(id, r){
 
         leaflet::addLayersControl(
           overlayGroups = c("Neighbourhoods", "Parks"),
-          options = leaflet::layersControlOptions(collapsed = FALSE)
+
+          options = leaflet::layersControlOptions(collapsed = FALSE, title = "Value")
         )
     })
 
