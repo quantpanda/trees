@@ -14,7 +14,7 @@ mod_dashboard_ui <- function(id, population){
       shiny::titlePanel("Compare Neighbourhoods"),
       shiny::sidebarLayout(
         shiny::sidebarPanel(
-          shiny::h3("Neighbourhoods Dashboard"),
+          shiny::h3(" "),
           shiny::selectInput(ns("neighbourhood1"),"Select Neighbourhood 1",
             choices = base::unique(population$neighbourhood_name),
             selected = "ABBOTTSFIELD"
@@ -64,8 +64,8 @@ mod_dashboard_server <- function(id, r){
         leaflet::setView(lng = -113.4909, lat = 53.5444, zoom = 11) %>%
 
         leaflet::addPolygons(data = filter_data()$coords,
-                             fillColor = "darkgreen",
-                             fillOpacity = 0.7,
+                             fillColor = "purple",
+                             fillOpacity = 0.9,
                              color = "black",
                              opacity = 1,
                              stroke = T,

@@ -10,7 +10,7 @@
 mod_about_ui <- function(id){
   ns <- NS(id)
   tagList(
-    shiny::titlePanel("About"),
+    shiny::titlePanel(""),
     shiny::fluidRow(
       shiny::column(12,
                     shiny::wellPanel(
@@ -28,21 +28,30 @@ mod_about_ui <- function(id){
       shiny::column(12,
                     shiny::wellPanel(
                       h3("Data Sources"),
-                      p("The data used in this dashboard is from the Edmonton Open Data Portal."))
+                      p("The data used in this dashboard is from the Edmonton Open Data Portal."),
+                      shiny::tags$li(
+                        shiny::tags$a(href = "https://data.edmonton.ca/",
+                                      "Open Data Portal")))
       ),
       shiny::column(12,
                     shiny::wellPanel(
                       h3("Author: Olivier Haley"),
                       # insert link to github
                       p("You can find the code for this dashboard on my GitHub page:"),
-                      # link
-
-                      shiny::a("https://github.com/tigerwoodsjr/trees")
+                      shiny::tags$li(
+                        shiny::tags$a(href = "https://github.com/tigerwoodsjr/trees",
+                                      "Github")),
+                                      h3("Questions/Bugs/Concerns"),
+                                      p("Reach out to ",
+                                        shiny::tags$a(href = "mailto:ohaley@ualberta.ca", "ohaley@ualberta.ca"),
+                                        " with bug reports, comments, or questions."
+                                      )
                     )
       )
 
     )
   )
+
   }
 
 #' about Server Functions
