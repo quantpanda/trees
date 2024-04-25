@@ -27,7 +27,7 @@ You can install the development version of trees like so:
 
 ``` r
 # install.packages("devtools")
-devtools::install_github("tigerwoodsjr/trees")
+devtools::install_github("quantpanda/trees")
 ```
 
 ## Running the app

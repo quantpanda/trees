@@ -1,5 +1,5 @@
 Package: trees
-Title: Trees
+Title: Edmonton Real Estate Analytics
 Version: 0.0.0.9000
 Authors@R: 
     person("Olivier", "Haley", , "ohaley@ualberta.ca", role = c("cre", "aut"))
@@ -13,6 +13,7 @@ Imports:
     golem (>= 0.4.1),
     leaflet,
     magrittr,
+    pkgload,
     plotly,
     scales,
     sf,
