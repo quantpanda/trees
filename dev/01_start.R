@@ -26,16 +26,16 @@ library(tidyverse)
 ##
 golem::fill_desc(
   pkg_name = "trees", # The Name of the package containing the App
-  pkg_title = "Trees", # The Title of the package containing the App
+  pkg_title = "Edmonton Real Estate Analytics", # The Title of the package containing the App
   pkg_description = "A golem shiny app focused on mapping.", # The Description of the package containing the App
   author_first_name = "Olivier", # Your First Name
   author_last_name = "Haley", # Your Last Name
   author_email = "ohaley@ualberta.ca", # Your Email
-  repo_url = NULL, # The URL of the GitHub Repo (optional),
+  repo_url = "https://github.com/quantpanda/trees", # The URL of the GitHub Repo (optional),
   pkg_version = "0.0.0.9000" # The Version of the package containing the App
 )
 
-## Set {golem} options ----
+## Set {golem} options ----x
 golem::set_golem_options()
 
 ## Install the required dev dependencies ----

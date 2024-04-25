@@ -39,7 +39,7 @@ mod_about_ui <- function(id){
                       # insert link to github
                       p("You can find the code for this dashboard on my GitHub page:"),
                       shiny::tags$li(
-                        shiny::tags$a(href = "https://github.com/tigerwoodsjr/trees",
+                        shiny::tags$a(href = "https://github.com/quantpanda/trees",
                                       "Github")),
                                       h3("Questions/Bugs/Concerns"),
                                       p("Reach out to ",
