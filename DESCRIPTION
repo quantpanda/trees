@@ -1,6 +1,6 @@
 Package: trees
 Title: Edmonton Real Estate Analytics
-Version: 0.0.0.9000
+Version: 0.0.1.0
 Authors@R: 
     person("Olivier", "Haley", , "ohaley@ualberta.ca", role = c("cre", "aut"))
 Description: A golem shiny app focused on mapping.
@@ -13,10 +13,8 @@ Imports:
     golem (>= 0.4.1),
     leaflet,
     magrittr,
-    pkgload,
     plotly,
     scales,
-    sf,
     shiny (>= 1.8.1),
     shinythemes
 Suggests: 
@@ -25,6 +23,6 @@ Config/testthat/edition: 3
 Encoding: UTF-8
 LazyData: true
 LazyDataCompression: gzip
-RoxygenNote: 7.3.1
+RoxygenNote: 7.3.3
 Remotes:
   quantpanda/trees

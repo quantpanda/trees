@@ -1,7 +1,7 @@
 ## code to prepare `yeg` dataset goes here
 
-# api_endpoint <- "https://data.edmonton.ca/resource/eecg-fc54.json?$limit=500000"
-# yeg <- httr::GET(api_endpoint) %>% httr::content("text") %>% jsonlite::fromJSON() %>% dplyr::as_tibble()
+api_endpoint <- "https://data.edmonton.ca/resource/eecg-fc54.json?$limit=500000"
+yeg <- httr::GET(api_endpoint) %>% httr::content("text") %>% jsonlite::fromJSON() %>% dplyr::as_tibble()
 
 # RAW DATA
 parks_raw <- readr::read_csv("https://data.edmonton.ca/api/views/gdd9-eqv9/rows.csv?date=20240415&accessType=DOWNLOAD")
@@ -19,6 +19,25 @@ api_endpoint_pop <- "https://data.edmonton.ca/resource/phd4-y42v.json"
 population_raw <- httr::GET(api_endpoint_pop) %>% httr::content("text") %>% jsonlite::fromJSON() %>% dplyr::as_tibble()
 
 
+crime_raw <- readr::read_csv("EPS_OCC_30DAY_-462847539713848170.csv")
+
+library(dplyr)
+library(sf)
+
+crime <- crime_raw %>%
+  # Ensure x and y are numeric
+  mutate(x = as.numeric(x),
+         y = as.numeric(y)) %>%
+  # Apply rowwise transformation to create points
+  rowwise() %>%
+  mutate(coords = st_sfc(st_point(c(x, y)), crs = 3857)) %>%
+  ungroup()
+# Convert the whole dataframe to sf after creating the geometry
+crime_sf <- st_as_sf(crime, sf_column_name = "coords", crs = 3857)
+# Transform to EPSG:4326 for leaflet (which uses lat/lon)
+crime_sf <- st_transform(crime_sf, crs = 4326) %>%
+  select(-x, -y, -OBJECTID, -Intersection)
+
 
 
 # MANIPULATED DATA
@@ -35,13 +54,12 @@ assessments <- assessments_raw %>%
             min_assessed_value = min(assessed_value, na.rm = TRUE),
             num_properties = dplyr::n())
 
-
 #TREES
-yeg <- yeg_raw %>%
-  dplyr::transmute(PLANTED_DATE,
-                   neighbourhood_name = NEIGHBOURHOOD_NAME,
-                   LONGITUDE, LATITUDE) %>%
-  dplyr::mutate(Year = lubridate::year(PLANTED_DATE))
+# yeg <- yeg_raw %>%
+#   dplyr::transmute(PLANTED_DATE,
+#                    neighbourhood_name = NEIGHBOURHOOD_NAME,
+#                    LONGITUDE, LATITUDE) %>%
+#   dplyr::mutate(Year = lubridate::year(PLANTED_DATE))
 
 # TREES SUMMARY
 trees_by_n <- yeg %>%
@@ -103,17 +121,18 @@ income <- incomes_raw %>%
 # NEIGHBOURHOODS MASTER
 yeg_neighbourhoods <- yeg_neighbourhoods_raw %>%
   dplyr::transmute(coords = sf::st_as_sfc(`Geometry Multipolygon`),
+                   coords_2 = sf::st_set_crs(coords, 4326),
+                   size = as.numeric(sf::st_area(sf::st_transform(coords_2, 32612))) / 1e6,
                    `neighbourhood_name` = `Neighbourhood Name`) %>%
   dplyr::full_join(trees_by_n, by = "neighbourhood_name") %>%
   dplyr::full_join(total_population, by = "neighbourhood_name") %>%
   dplyr::full_join(assessments, by = "neighbourhood_name") %>%
   # if neighbourhood name has "INDUSTRIAL" in it, set count to 0
-  dplyr::mutate(Count = ifelse(grepl("INDUSTRIAL", neighbourhood_name), NA, Count)) %>%
-  dplyr::mutate(Count = ifelse(grepl("ANTHONY HENDAY", neighbourhood_name), NA, Count)) %>%
-  dplyr::mutate(Count = ifelse(grepl("RIVER VALLEY", neighbourhood_name), NA, Count)) %>%
-  dplyr::mutate(Count = ifelse(grepl("CREEK RAVINE", neighbourhood_name), NA, Count)) %>%
-  dplyr::mutate(tree_prop = Count /(num_properties + 0.01))
+  dplyr::mutate(Count = ifelse(Population < 100, NA, Count)) %>% # remove neighbourhoods with less than 100 properties
+  dplyr::filter(!is.na(Count)) %>%
+  dplyr::mutate(tree_prop = Count /(num_properties + 0.01),
+                trees_by_size = Count / (size + 0.01))
 
 # Not using
 
-remove(yeg_neighbourhoods, yeg)
+#remove(yeg_neighbourhoods, yeg)

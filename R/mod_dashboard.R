@@ -7,7 +7,7 @@
 #' @noRd
 #'
 #' @importFrom shiny NS tagList
-mod_dashboard_ui <- function(id, population){
+mod_dashboard_ui <- function(id){
   ns <- NS(id)
   tagList(
     shiny::fluidPage(
@@ -16,11 +16,11 @@ mod_dashboard_ui <- function(id, population){
         shiny::sidebarPanel(
           shiny::h3(" "),
           shiny::selectInput(ns("neighbourhood1"),"Select Neighbourhood 1",
-            choices = base::unique(population$neighbourhood_name),
+            choices = base::unique(yeg_neighbourhoods$neighbourhood_name),
             selected = "ABBOTTSFIELD"
           ),
           shiny::selectInput(ns("neighbourhood2"),"Select Neighbourhood 2",
-                             choices = base::unique(population$neighbourhood_name),
+                             choices = base::unique(yeg_neighbourhoods$neighbourhood_name),
                              selected = "WESTMOUNT"),
           h3("Neighbourhoods Map"),
           leaflet::leafletOutput(ns("neighbourhood_map"), width = 400, height = 400),
@@ -96,6 +96,7 @@ mod_dashboard_server <- function(id, r){
             )
           ),
           yaxis = list(
+            ticksuffix = "%",
             zeroline = FALSE,
             title = list(
               text = "Proportion (%)",
@@ -135,7 +136,7 @@ mod_dashboard_server <- function(id, r){
           xaxis = list(
             zeroline = FALSE,
             title = list(
-              text = "",
+              text = "Population",
               font = list(
                 color = "white"  # Set X axis label font color to white
               )
@@ -176,16 +177,36 @@ mod_dashboard_server <- function(id, r){
 
     # Income comparison
     output$plot_dash3 <- plotly::renderPlotly({
-      #plot histogram as plotly
-      plotly::plot_ly(data = r$income %>% dplyr::filter(neighbourhood_name == input$neighbourhood1) %>% dplyr::arrange(class_num),x = ~class_num, y = ~prop*100, name = ~input$neighbourhood1, type = 'bar',
-                      marker = list(color = 'rgb(250,207,206)', line = list(color = 'rgb(8,48,107)', width = 1.5))) %>%
-        plotly::add_trace(data = r$income %>% dplyr::filter(neighbourhood_name == input$neighbourhood2) %>% dplyr::arrange(class_num), x = ~class_num, y = ~prop*100, name = ~input$neighbourhood2, marker = list(color = '#23606E')) %>%
+      # Convert class to a factor ordered by class_num
+      data1 <- r$income %>%
+        dplyr::filter(neighbourhood_name == input$neighbourhood1) %>%
+        dplyr::arrange(class_num) %>%
+        dplyr::mutate(class = factor(class, levels = class[order(class_num)]))
+
+      data2 <- r$income %>%
+        dplyr::filter(neighbourhood_name == input$neighbourhood2) %>%
+        dplyr::arrange(class_num) %>%
+        dplyr::mutate(class = factor(class, levels = class[order(class_num)]))
+
+      # Plot the data
+      plotly::plot_ly(data = data1,
+                      x = ~class,
+                      y = ~prop * 100,
+                      name = ~input$neighbourhood1,
+                      type = 'bar',
+                      marker = list(color = 'rgb(250,207,206)',
+                                    line = list(color = 'rgb(8,48,107)', width = 1.5))) %>%
+        plotly::add_trace(data = data2,
+                          x = ~class,
+                          y = ~prop * 100,
+                          name = ~input$neighbourhood2,
+                          marker = list(color = '#23606E'))%>%
         plotly::layout(
           xaxis = list(
             zeroline = FALSE,
 
             title = list(
-              text = "Income",
+              text = "Yearly Income ($)",
               font = list(
                 color = "white"  # Set X axis label font color to white
               )
@@ -195,6 +216,7 @@ mod_dashboard_server <- function(id, r){
             )
           ),
           yaxis = list(
+            ticksuffix = "%",
             zeroline = FALSE,
             title = list(
               text = "Propotion (%)",

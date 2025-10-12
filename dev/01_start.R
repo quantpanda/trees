@@ -16,7 +16,7 @@ library(usethis)
 library(devtools)
 library(shiny)
 library(tidyverse)
-
+library(trees)
 ## Fill the DESCRIPTION ----
 ## Add meta data about your application
 ##

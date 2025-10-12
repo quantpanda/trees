@@ -5,14 +5,13 @@
 #' @import shiny
 #' @noRd
 app_ui <- function(request) {
-  population = trees::population
   # Leave this function for adding external resources
   golem_add_external_resources()
   # Your application UI logic
   shiny::navbarPage("City of Edmonton",
                     theme = shinythemes::shinytheme("cyborg"),
                     tabPanel("Explore Map", mod_edmonton_ui("edmonton_1")),
-                    tabPanel("Compare Neighbourhoods", mod_dashboard_ui("dashboard_1", population)),
+                    tabPanel("Compare Neighbourhoods", mod_dashboard_ui("dashboard_1")),
                     tabPanel("Find Your Budget", mod_mortgage_ui("mortgage_1")),
                     tabPanel("About", mod_about_ui("about_1"))
   )
