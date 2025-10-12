@@ -33,7 +33,6 @@ WORKDIR /build_zone
 
 # Install your package locally
 ARG GITHUB_PAT
-ENV GITHUB_PAT=${GITHUB_PAT}  # optional if remotes need GitHub auth
 RUN R -e 'remotes::install_local(upgrade="never")'
 
 # Clean build directory
