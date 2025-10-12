@@ -12,6 +12,7 @@ Imports:
     dplyr,
     golem (>= 0.4.1),
     leaflet,
+    leaflet.providers,
     magrittr,
     plotly,
     scales,
