@@ -67,7 +67,7 @@ mod_edmonton_server <- function(id, r){
 
 
       leaflet::leaflet() %>%
-        leaflet::addProviderTiles("Stadia.AlidadeSmoothDark") %>%
+        leaflet::addProviderTiles("Esri.WorldImagery") %>%
 
         leaflet::setView(lng = -113.4909, lat = 53.5444, zoom = 11) %>%
 

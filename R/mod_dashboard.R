@@ -58,8 +58,9 @@ mod_dashboard_server <- function(id, r){
       labss <- lapply(1:nrow(filter_data()), function(i) {
         shiny::HTML(paste("Neighbourhood: ", filter_data()$neighbourhood_name[i], "<br>"))
       })
+
       leaflet::leaflet() %>%
-        leaflet::addProviderTiles("Stadia.AlidadeSmoothDark") %>%
+        leaflet::addProviderTiles("Esri.WorldImagery") %>%
 
         leaflet::setView(lng = -113.4909, lat = 53.5444, zoom = 11) %>%
 

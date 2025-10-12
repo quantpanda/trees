@@ -82,7 +82,7 @@ mod_mortgage_server <- function(id, r) {
                     paste("Number of Properties: ", right_neigh$num_properties[i], "<br>"))
       })
       leaflet::leaflet() %>%
-        leaflet::addProviderTiles("Stadia.AlidadeSmoothDark") %>%
+        leaflet::addProviderTiles("Esri.WorldImagery") %>%
 
         leaflet::setView(lng = -113.4909, lat = 53.5444, zoom = 11) %>%
 
